@@ -1,10 +1,3 @@
-Author:  Chris Brennan
-
-Company: Brennan Technologies, LLC
-
-Email:   chris@brennantechnologies.com
-
-Web:     https://www.brennantechnologies.com
 
 # AI.BrennanTechnologies
 
@@ -12,6 +5,14 @@ AI Solutions and Agents by Brennan Technologies, LLC.
 
 This monorepo contains two independent projects for building and observing AI systems.
 
+
+Author:  Chris Brennan
+
+Company: Brennan Technologies, LLC
+
+Email:   chris@brennantechnologies.com
+
+Web:     https://www.brennantechnologies.com
 ---
 
 ## Projects

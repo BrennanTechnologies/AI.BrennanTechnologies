@@ -1,0 +1,26 @@
+# Author:  Chris Brennan
+# Company: Brennan Technologies, LLC
+# Email:   chris@brennantechnologies.com
+# Web:     https://www.brennantechnologies.com
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Node
+node_modules/
+dist/
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Runtime
+backend/llm_obs.db
+*.log
+
+# Env
+.env

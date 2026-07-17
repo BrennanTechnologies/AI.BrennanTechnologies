@@ -1,0 +1,67 @@
+@baseUrl = http://localhost:8020
+@apiKey = dev-demo-key
+
+### Health
+GET {{baseUrl}}/health
+
+### Governance knowledge style query
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: analyst@contoso.com
+X-Role: viewer
+Content-Type: application/json
+
+{
+  "user_input": "What is the policy for privileged role assignments?",
+  "context": {
+    "source": "teams-chat"
+  }
+}
+
+### Non-sensitive action
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: operator@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "user_input": "Create task to review inactive guests and notify owners",
+  "context": {
+    "tenant": "contoso"
+  }
+}
+
+### Sensitive action should pause for approval (operator)
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: operator@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "user_input": "Disable compromised account and revoke sessions",
+  "context": {
+    "ticket": "INC-4421"
+  }
+}
+
+### Sensitive action as admin (allowed)
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: admin@contoso.com
+X-Role: admin
+Content-Type: application/json
+
+{
+  "user_input": "Disable compromised account and revoke sessions",
+  "context": {
+    "ticket": "INC-4421"
+  }
+}
+
+### Audit logs
+GET {{baseUrl}}/workflow/audit?limit=20
+X-API-Key: {{apiKey}}
+X-User-Id: admin@contoso.com
+X-Role: admin

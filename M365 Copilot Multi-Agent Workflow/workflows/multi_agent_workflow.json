@@ -1,0 +1,22 @@
+{
+	"name": "m365-copilot-multi-agent-workflow",
+	"version": "1.0.0",
+	"agents": [
+		{
+			"name": "router_agent",
+			"responsibility": "Classify intent and route request"
+		},
+		{
+			"name": "knowledge_agent",
+			"responsibility": "Answer governance questions from knowledge docs"
+		},
+		{
+			"name": "action_agent",
+			"responsibility": "Execute controlled actions and notify integrations"
+		},
+		{
+			"name": "approval_agent",
+			"responsibility": "Gate sensitive actions for admin approval"
+		}
+	]
+}

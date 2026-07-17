@@ -1,0 +1,53 @@
+@baseUrl = http://localhost:8030
+@apiKey = dev-demo-key
+
+### Health
+GET {{baseUrl}}/health
+
+### Knowledge query
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: analyst@contoso.com
+X-Role: viewer
+Content-Type: application/json
+
+{
+  "user_input": "What is our policy on sensitive user lifecycle actions?",
+  "context": {
+    "channel": "teams"
+  }
+}
+
+### Action request (non-sensitive)
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: operator@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "user_input": "Create task to review inactive guest users and notify owners",
+  "context": {
+    "ticket": "INC-9021"
+  }
+}
+
+### Action request (sensitive, should require admin)
+POST {{baseUrl}}/workflow/run
+X-API-Key: {{apiKey}}
+X-User-Id: operator@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "user_input": "Disable compromised account and revoke active sessions",
+  "context": {
+    "ticket": "INC-9022"
+  }
+}
+
+### Audit log
+GET {{baseUrl}}/workflow/audit?limit=20
+X-API-Key: {{apiKey}}
+X-User-Id: admin@contoso.com
+X-Role: admin

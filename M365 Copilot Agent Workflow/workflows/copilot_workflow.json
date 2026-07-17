@@ -1,0 +1,22 @@
+{
+	"name": "m365-copilot-agent-workflow",
+	"version": "1.0.0",
+	"steps": [
+		{
+			"name": "intent_classification",
+			"description": "Determine if user request is knowledge query or action request"
+		},
+		{
+			"name": "approval_gate",
+			"description": "Pause workflow for sensitive actions unless admin role"
+		},
+		{
+			"name": "execute_action",
+			"description": "Invoke controlled integration (Power Automate / Azure Function)"
+		},
+		{
+			"name": "audit_log",
+			"description": "Log each step and outcome for governance"
+		}
+	]
+}

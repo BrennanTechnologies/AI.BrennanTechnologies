@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Enterprise Document RAG Assistant</title>
+	<style>
+		:root {
+			--bg: #f7f8f5;
+			--panel: #ffffff;
+			--ink: #1e2a2f;
+			--muted: #5d6b72;
+			--accent: #1f8a70;
+			--accent-2: #19647e;
+			--line: #d9dfdc;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+			color: var(--ink);
+			background:
+				radial-gradient(circle at 10% 10%, #d2efe5 0%, transparent 35%),
+				radial-gradient(circle at 90% 20%, #dbeaf3 0%, transparent 28%),
+				var(--bg);
+		}
+
+		.wrap {
+			max-width: 980px;
+			margin: 40px auto;
+			padding: 20px;
+		}
+
+		.hero {
+			background: linear-gradient(135deg, #183a37 0%, #0b4f6c 100%);
+			color: white;
+			padding: 28px;
+			border-radius: 18px;
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+		}
+
+		.hero h1 {
+			margin: 0 0 8px;
+			font-size: 2rem;
+		}
+
+		.hero p {
+			margin: 0;
+			opacity: .95;
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 18px;
+			margin-top: 18px;
+		}
+
+		.panel {
+			background: var(--panel);
+			border: 1px solid var(--line);
+			border-radius: 14px;
+			padding: 18px;
+		}
+
+		h2 {
+			margin-top: 0;
+		}
+
+		input[type="file"],
+		textarea,
+		button {
+			width: 100%;
+			font: inherit;
+			border-radius: 10px;
+			border: 1px solid var(--line);
+			padding: 10px;
+		}
+
+		textarea {
+			min-height: 95px;
+			resize: vertical;
+		}
+
+		button {
+			cursor: pointer;
+			background: linear-gradient(135deg, var(--accent), var(--accent-2));
+			color: white;
+			border: none;
+			font-weight: 600;
+			margin-top: 10px;
+		}
+
+		button:hover {
+			filter: brightness(1.05);
+		}
+
+		.status {
+			color: var(--muted);
+			margin-top: 10px;
+			white-space: pre-wrap;
+		}
+
+		.answer {
+			margin-top: 14px;
+			background: #f2f6f8;
+			border-radius: 10px;
+			padding: 12px;
+		}
+
+		.citations {
+			margin-top: 10px;
+		}
+
+		.citations li {
+			margin-bottom: 8px;
+		}
+
+		@media (min-width: 900px) {
+			.grid {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrap">
+		<div class="hero">
+			<h1>Enterprise Document RAG Assistant</h1>
+			<p>Upload PDFs/Markdown, index into Azure AI Search, and ask grounded questions with citations.</p>
+		</div>
+
+		<div class="grid">
+			<section class="panel">
+				<h2>1) Upload and Index Documents</h2>
+				<input id="files" type="file" multiple accept=".pdf,.md" />
+				<button id="uploadBtn">Upload + Index</button>
+				<div id="uploadStatus" class="status"></div>
+			</section>
+
+			<section class="panel">
+				<h2>2) Ask a Question</h2>
+				<textarea id="question" placeholder="Ask something covered by your uploaded docs..."></textarea>
+				<button id="askBtn">Ask</button>
+				<div id="askStatus" class="status"></div>
+				<div id="answer" class="answer" style="display:none;"></div>
+				<ul id="citations" class="citations"></ul>
+			</section>
+		</div>
+	</div>
+
+	<script>
+		const uploadBtn = document.getElementById("uploadBtn");
+		const askBtn = document.getElementById("askBtn");
+
+		uploadBtn.addEventListener("click", async () => {
+			const input = document.getElementById("files");
+			const status = document.getElementById("uploadStatus");
+			const files = input.files;
+			if (!files.length) {
+				status.textContent = "Select at least one .pdf or .md file.";
+				return;
+			}
+
+			const form = new FormData();
+			for (const file of files) {
+				form.append("files", file);
+			}
+
+			status.textContent = "Uploading and indexing...";
+			try {
+				const res = await fetch("/documents/upload", { method: "POST", body: form });
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.detail || "Upload failed.");
+				status.textContent = `Indexed ${data.indexed_chunks} chunks from: ${data.filenames.join(", ")}`;
+			} catch (err) {
+				status.textContent = err.message;
+			}
+		});
+
+		askBtn.addEventListener("click", async () => {
+			const q = document.getElementById("question").value.trim();
+			const status = document.getElementById("askStatus");
+			const answerEl = document.getElementById("answer");
+			const citationsEl = document.getElementById("citations");
+			if (!q) {
+				status.textContent = "Please enter a question.";
+				return;
+			}
+
+			status.textContent = "Querying...";
+			answerEl.style.display = "none";
+			citationsEl.innerHTML = "";
+
+			try {
+				const res = await fetch("/ask", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ question: q })
+				});
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.detail || "Query failed.");
+
+				answerEl.style.display = "block";
+				answerEl.textContent = data.answer;
+
+				for (const c of data.citations) {
+					const li = document.createElement("li");
+					li.textContent = `${c.filename} (${c.chunk_id}) score=${c.score.toFixed(3)}: ${c.excerpt}`;
+					citationsEl.appendChild(li);
+				}
+
+				status.textContent = "Done.";
+			} catch (err) {
+				status.textContent = err.message;
+			}
+		});
+	</script>
+</body>
+
+</html>

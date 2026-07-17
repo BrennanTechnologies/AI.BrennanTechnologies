@@ -1,0 +1,19 @@
+[project]
+name = "enterprise-document-rag-assistant"
+version = "0.1.0"
+description = "Enterprise Document RAG Assistant with FastAPI, Azure OpenAI, and Azure AI Search"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+    "pydantic-settings>=2.4.0",
+    "openai>=1.40.0",
+    "azure-identity>=1.17.1",
+    "azure-search-documents>=11.6.0b5",
+    "pypdf>=4.3.0",
+]
+
+[tool.uv]
+package = false

@@ -1,3 +1,12 @@
+![Brennan Technologies Logo](./resources/Brennan_Technologies_LLC-small2.png)
+Author:  Chris Brennan
+
+Company: Brennan Technologies, LLC
+
+Email:   chris@brennantechnologies.com
+
+Web:     https://www.brennantechnologies.com
+
 # Enterprise Document RAG Assistant
 
 A polished Retrieval-Augmented Generation (RAG) assistant for controlled enterprise documents.

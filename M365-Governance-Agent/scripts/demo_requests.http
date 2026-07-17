@@ -1,0 +1,69 @@
+# Author:  Chris Brennan
+# Company: Brennan Technologies, LLC
+# Email:   chris@brennantechnologies.com
+# Web:     https://www.brennantechnologies.com
+
+@baseUrl = http://localhost:8015
+@apiKey = dev-demo-key
+
+### Health
+GET {{baseUrl}}/health
+
+### Ask governance question
+POST {{baseUrl}}/agent/ask
+X-API-Key: {{apiKey}}
+X-User-Id: alice@contoso.com
+X-Role: viewer
+Content-Type: application/json
+
+{
+  "question": "Who can approve sensitive identity control actions?"
+}
+
+### Perform non-sensitive action (operator)
+POST {{baseUrl}}/agent/action
+X-API-Key: {{apiKey}}
+X-User-Id: bob@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "action_type": "create_task",
+  "payload": {
+    "title": "Investigate high-risk sign-in",
+    "owner": "soc-analyst"
+  }
+}
+
+### Perform sensitive action (requires approval)
+POST {{baseUrl}}/agent/action
+X-API-Key: {{apiKey}}
+X-User-Id: bob@contoso.com
+X-Role: operator
+Content-Type: application/json
+
+{
+  "action_type": "call_mock_graph_endpoint",
+  "payload": {
+    "endpoint": "/users/{id}/block-signin",
+    "target": "user@contoso.com"
+  }
+}
+
+### Approve sensitive action as admin (replace id)
+POST {{baseUrl}}/agent/approvals/2
+X-API-Key: {{apiKey}}
+X-User-Id: admin@contoso.com
+X-Role: admin
+Content-Type: application/json
+
+{
+  "decision": "approve",
+  "reviewer_notes": "Validated against incident severity and policy."
+}
+
+### Retrieve action logs
+GET {{baseUrl}}/agent/actions/logs?limit=50
+X-API-Key: {{apiKey}}
+X-User-Id: admin@contoso.com
+X-Role: admin

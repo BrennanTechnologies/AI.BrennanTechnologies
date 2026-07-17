@@ -1,4 +1,5 @@
 ![Brennan Technologies Logo](./resources/Brennan_Technologies_LLC-small2.png)
+
 Author:  Chris Brennan
 
 Company: Brennan Technologies, LLC

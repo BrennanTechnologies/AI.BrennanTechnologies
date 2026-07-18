@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Copilot Adoption Agent</title>
+	<style>
+		:root {
+			--bg: #f8fafc;
+			--card: #ffffff;
+			--ink: #1d2a35;
+			--muted: #556472;
+			--brand: #464feb;
+			--brand-soft: #e8eaff;
+			--line: #e6e6e6;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+			color: var(--ink);
+			background:
+				radial-gradient(circle at 10% 10%, #dce6ff 0%, transparent 35%),
+				radial-gradient(circle at 95% 5%, #eaf9f0 0%, transparent 30%),
+				var(--bg);
+		}
+
+		a {
+			text-decoration: none;
+			color: #464feb;
+		}
+
+		.container {
+			max-width: 1040px;
+			margin: 24px auto;
+			padding: 18px;
+		}
+
+		.hero {
+			border-radius: 18px;
+			padding: 22px;
+			background: linear-gradient(120deg, #343bca 0%, #2673d7 100%);
+			color: #fff;
+			box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+		}
+
+		.hero h1 {
+			margin: 0 0 6px;
+			font-size: 1.9rem;
+		}
+
+		.hero p {
+			margin: 0;
+			opacity: 0.95;
+		}
+
+		.layout {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 16px;
+			margin-top: 16px;
+		}
+
+		.card {
+			background: var(--card);
+			border: 1px solid var(--line);
+			border-radius: 14px;
+			padding: 16px;
+		}
+
+		.card h2 {
+			margin: 0 0 10px;
+			font-size: 1.1rem;
+		}
+
+		input,
+		select,
+		textarea,
+		button {
+			width: 100%;
+			margin-top: 8px;
+			border: 1px solid var(--line);
+			border-radius: 10px;
+			padding: 10px;
+			font: inherit;
+		}
+
+		button {
+			background: var(--brand);
+			color: #fff;
+			border: none;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		button:hover {
+			filter: brightness(1.04);
+		}
+
+		.result {
+			margin-top: 12px;
+			background: #f2f4ff;
+			border: 1px solid #dfe3ff;
+			border-radius: 10px;
+			padding: 10px;
+			white-space: pre-wrap;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 10px;
+			background: #fff;
+		}
+
+		tr th,
+		tr td {
+			border: 1px solid #e6e6e6;
+		}
+
+		tr th {
+			background-color: #f5f5f5;
+		}
+
+		th,
+		td {
+			padding: 8px;
+			text-align: left;
+			font-size: 0.95rem;
+		}
+
+		.small {
+			color: var(--muted);
+			font-size: 0.92rem;
+		}
+
+		@media (min-width: 900px) {
+			.layout {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<main class="container">
+		<section class="hero">
+			<h1>Copilot Adoption Agent</h1>
+			<p>Teach employees, recommend prompts, track adoption, and guide training progression.</p>
+		</section>
+
+		<section class="layout">
+			<article class="card">
+				<h2>Coaching Session</h2>
+				<p class="small">Uses role + goal + skill level to provide prompt recommendations and a training path.
+				</p>
+				<input id="apiKey" placeholder="API key (default: dev-demo-key)" value="dev-demo-key" />
+				<input id="userId" placeholder="User ID" value="alex@contoso.com" />
+				<input id="role" placeholder="Role (sales/hr/it/etc.)" value="it" />
+				<input id="goal" placeholder="Goal" value="Improve incident triage productivity" />
+				<select id="skillLevel">
+					<option value="beginner">beginner</option>
+					<option value="intermediate">intermediate</option>
+					<option value="advanced">advanced</option>
+				</select>
+				<button id="coachBtn">Get Coaching</button>
+				<div id="coachResult" class="result"></div>
+			</article>
+
+			<article class="card">
+				<h2>Adoption Tracking</h2>
+				<p class="small">Log usage events and view adoption metrics by department.</p>
+				<input id="eventUserId" placeholder="User ID" value="alex@contoso.com" />
+				<input id="department" placeholder="Department" value="IT" />
+				<input id="action" placeholder="Action" value="Used Copilot to summarize incident" />
+				<button id="eventBtn">Log Event</button>
+				<button id="metricsBtn" style="margin-top:8px; background:#2f398c;">Refresh Metrics</button>
+				<table>
+					<thead>
+						<tr>
+							<th>Metric</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody id="metricsBody"></tbody>
+				</table>
+			</article>
+		</section>
+
+		<section class="card" style="margin-top:16px;">
+			<h2>How To Use</h2>
+			<p class="small">
+				Run the API and open this page. You can also call endpoints directly; see
+				<a href="/static/../scripts-placeholder">scripts/demo_requests.http</a>
+				in the project root.
+			</p>
+		</section>
+	</main>
+
+	<script>
+		const coachBtn = document.getElementById('coachBtn');
+		const eventBtn = document.getElementById('eventBtn');
+		const metricsBtn = document.getElementById('metricsBtn');
+		const coachResult = document.getElementById('coachResult');
+		const metricsBody = document.getElementById('metricsBody');
+
+		function headers() {
+			return {
+				'Content-Type': 'application/json',
+				'X-API-Key': document.getElementById('apiKey').value
+			};
+		}
+
+		function setMetricsRows(rows) {
+			metricsBody.innerHTML = rows.map(r => `<tr><td>${r.k}</td><td>${r.v}</td></tr>`).join('');
+		}
+
+		async function loadMetrics() {
+			try {
+				const res = await fetch('/api/adoption/metrics', { headers: headers() });
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.detail || 'Failed to load metrics.');
+
+				const dept = (data.top_departments || []).map(d => `${d.department} (${d.count})`).join(', ') || 'none';
+				setMetricsRows([
+					{ k: 'Total Events', v: data.total_events },
+					{ k: 'Active Users (30d)', v: data.active_users_30d },
+					{ k: 'Top Departments', v: dept }
+				]);
+			} catch (err) {
+				setMetricsRows([{ k: 'Error', v: err.message }]);
+			}
+		}
+
+		coachBtn.addEventListener('click', async () => {
+			const body = {
+				user_id: document.getElementById('userId').value,
+				role: document.getElementById('role').value,
+				goal: document.getElementById('goal').value,
+				skill_level: document.getElementById('skillLevel').value
+			};
+
+			try {
+				const res = await fetch('/api/coach', { method: 'POST', headers: headers(), body: JSON.stringify(body) });
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.detail || 'Coach request failed.');
+
+				coachResult.textContent = [
+					`Teaching Tip: ${data.teaching_tip}`,
+					`Coaching: ${data.coaching_message}`,
+					'',
+					'Prompt Recommendations:',
+					...data.prompt_recommendations.map((p, i) => `${i + 1}. ${p.title}: ${p.prompt}`),
+					'',
+					'Training Path:',
+					...data.training_path.map((s, i) => `${i + 1}. ${s}`)
+				].join('\n');
+			} catch (err) {
+				coachResult.textContent = err.message;
+			}
+		});
+
+		eventBtn.addEventListener('click', async () => {
+			const body = {
+				user_id: document.getElementById('eventUserId').value,
+				department: document.getElementById('department').value,
+				action: document.getElementById('action').value
+			};
+
+			try {
+				const res = await fetch('/api/adoption/events', { method: 'POST', headers: headers(), body: JSON.stringify(body) });
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.detail || 'Event logging failed.');
+				await loadMetrics();
+			} catch (err) {
+				coachResult.textContent = err.message;
+			}
+		});
+
+		metricsBtn.addEventListener('click', loadMetrics);
+		loadMetrics();
+	</script>
+</body>
+
+</html>

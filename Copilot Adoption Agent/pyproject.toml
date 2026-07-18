@@ -1,0 +1,20 @@
+# Author:  Chris Brennan
+# Company: Brennan Technologies, LLC
+# Email:   chris@brennantechnologies.com
+# Web:     https://www.brennantechnologies.com
+
+[project]
+name = "copilot-adoption-agent"
+version = "0.1.0"
+description = "Copilot Adoption Agent for enablement, prompt coaching, and adoption tracking"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "pydantic>=2.8.0",
+  "pydantic-settings>=2.4.0"
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,9 @@
+# Author:  Chris Brennan
+# Company: Brennan Technologies, LLC
+# Email:   chris@brennantechnologies.com
+# Web:     https://www.brennantechnologies.com
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.8.0
+pydantic-settings>=2.4.0

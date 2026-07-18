@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:8040
+@apiKey = dev-demo-key
+
+### Health
+GET {{baseUrl}}/health
+
+### Coaching request
+POST {{baseUrl}}/api/coach
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "user_id": "alex@contoso.com",
+  "role": "it",
+  "goal": "Improve incident triage productivity",
+  "skill_level": "intermediate"
+}
+
+### Log adoption event
+POST {{baseUrl}}/api/adoption/events
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "user_id": "alex@contoso.com",
+  "department": "IT",
+  "action": "Used Copilot to summarize incident"
+}
+
+### Metrics
+GET {{baseUrl}}/api/adoption/metrics
+X-API-Key: {{apiKey}}
